@@ -42,7 +42,7 @@ var pollmanager *manager
 var logger *log.Logger
 
 func init() {
-	var loops = runtime.GOMAXPROCS(0)/20 + 1
+	var loops = runtime.GOMAXPROCS(0)/20 + 1 //默认为1反应核心，超过40核的cpu应该增加反应核心数
 	pollmanager = &manager{}
 	pollmanager.SetLoadBalance(RoundRobin)
 	pollmanager.SetNumLoops(loops)

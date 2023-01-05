@@ -359,6 +359,10 @@ func (c *connection) initFDOperator() {
 	}
 	op.FD = c.fd
 	op.OnRead, op.OnWrite, op.OnHup = nil, nil, c.onHup
+
+	//这边有点奇怪，c. 开头的函数会变成特殊的闭包函数
+	//这边开始吧c 带入了op里头，当op.Inputs 等函数被调用，
+	//connection 属性会被修改
 	op.Inputs, op.InputAck = c.inputs, c.inputAck
 	op.Outputs, op.OutputAck = c.outputs, c.outputAck
 

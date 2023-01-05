@@ -63,6 +63,7 @@ type barrier struct {
 }
 
 // writev wraps the writev system call.
+// 该函数暂时未被使用
 func writev(fd int, bs [][]byte, ivs []syscall.Iovec) (n int, err error) {
 	iovLen := iovecs(bs, ivs)
 	if iovLen == 0 {
@@ -94,8 +95,10 @@ func readv(fd int, bs [][]byte, ivs []syscall.Iovec) (n int, err error) {
 }
 
 // TODO: read from sysconf(_SC_IOV_MAX)? The Linux default is
-//  1024 and this seems conservative enough for now. Darwin's
-//  UIO_MAXIOV also seems to be 1024.
+//
+//	1024 and this seems conservative enough for now. Darwin's
+//	UIO_MAXIOV also seems to be 1024.
+//
 // iovecs limit length to 2GB(2^31)
 func iovecs(bs [][]byte, ivs []syscall.Iovec) (iovLen int) {
 	totalLen := 0

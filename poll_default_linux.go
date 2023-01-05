@@ -82,13 +82,14 @@ func (a *pollArgs) reset(size, caps int) {
 }
 
 // Wait implements Poll.
+// 反应堆核心函数
 func (p *defaultPoll) Wait() (err error) {
 	// init
 	var caps, msec, n = barriercap, -1, 0
 	p.Reset(128, caps)
 	// wait
 	for {
-		if n == p.size && p.size < 128*1024 {
+		if n == p.size && p.size < 128*1024 { // 控制一次wait接收event的数量
 			p.Reset(p.size<<1, caps)
 		}
 		n, err = EpollWait(p.fd, p.events, msec)
@@ -101,7 +102,7 @@ func (p *defaultPoll) Wait() (err error) {
 			continue
 		}
 		msec = 0
-		if p.Handler(p.events[:n]) {
+		if p.Handler(p.events[:n]) { //处理事件
 			return nil
 		}
 		// we can make sure that there is no op remaining if Handler finished
@@ -109,9 +110,12 @@ func (p *defaultPoll) Wait() (err error) {
 	}
 }
 
+// 核心函数，处理事件
 func (p *defaultPoll) handler(events []epollevent) (closed bool) {
 	for i := range events {
 		var operator = *(**FDOperator)(unsafe.Pointer(&events[i].data))
+
+		//判断fd （conn） 状态,如果 状态不等1 则继续
 		if !operator.do() {
 			continue
 		}
@@ -134,7 +138,7 @@ func (p *defaultPoll) handler(events []epollevent) (closed bool) {
 		evt := events[i].events
 		// check poll in
 		if evt&syscall.EPOLLIN != 0 {
-			if operator.OnRead != nil {
+			if operator.OnRead != nil { //自定义处理 onread事件，没走zerocopy
 				// for non-connection
 				operator.OnRead(p)
 			} else if operator.Inputs != nil {
