@@ -111,7 +111,7 @@ func (c *connection) onPrepare(opts *options) (err error) {
 	}
 	// prepare may close the connection.
 	if c.IsActive() {
-		return c.register()
+		return c.register() //在epoll中注册事件
 	}
 	return nil
 }
@@ -167,6 +167,9 @@ func (c *connection) onRequest() (needTrigger bool) {
 
 // onProcess is responsible for executing the process function serially,
 // and make sure the connection has been closed correctly if user call c.Close() in process function.
+// onProcess负责串行执行流程函数，
+// 如果用户在流程函数中调用 c.Close()，请确保连接已正确关闭。
+// 如果conn有可读数据，则异步执行onRequest handler
 func (c *connection) onProcess(isProcessable func(c *connection) bool, process func(c *connection)) (processed bool) {
 	if process == nil {
 		return false
@@ -180,7 +183,10 @@ func (c *connection) onProcess(isProcessable func(c *connection) bool, process f
 	START:
 		// `process` must be executed at least once if `isProcessable` in order to cover the `send & close by peer` case.
 		// Then the loop processing must ensure that the connection `IsActive`.
-		if isProcessable(c) {
+
+		// 如果 `isProcessable` 必须至少执行一次 `process` 以涵盖 `send & close by peer` 的情况。
+		// 然后循环处理必须保证连接`IsActive`。
+		if isProcessable(c) { //有数据可读
 			process(c)
 		}
 		for c.IsActive() && isProcessable(c) {
@@ -200,7 +206,7 @@ func (c *connection) onProcess(isProcessable func(c *connection) bool, process f
 		return
 	}
 
-	runTask(c.ctx, task)
+	runTask(c.ctx, task) //这边有goroutine 异步跑
 	return true
 }
 

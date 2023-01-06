@@ -145,8 +145,10 @@ func (p *defaultPoll) handler(events []epollevent) (closed bool) {
 				// for connection
 				var bs = operator.Inputs(p.barriers[i].bs)
 				if len(bs) > 0 {
-					var n, err = readv(operator.FD, bs, p.barriers[i].ivs)
+					var n, err = readv(operator.FD, bs, p.barriers[i].ivs) //读取conn中的数据
+
 					operator.InputAck(n)
+
 					if err != nil && err != syscall.EAGAIN && err != syscall.EINTR {
 						logger.Printf("NETPOLL: readv(fd=%d) failed: %s", operator.FD, err.Error())
 						p.appendHup(operator)

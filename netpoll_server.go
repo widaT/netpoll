@@ -107,7 +107,7 @@ func (s *server) OnRead(p Poll) error {
 	}
 	// store & register connection
 	var connection = &connection{}
-	connection.init(conn.(Conn), s.opts)
+	connection.init(conn.(Conn), s.opts) //这个函数中注册 fd event事件
 	if !connection.IsActive() {
 		return nil
 	}
