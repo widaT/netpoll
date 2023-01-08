@@ -147,6 +147,7 @@ func (p *defaultPoll) handler(events []epollevent) (closed bool) {
 				if len(bs) > 0 {
 
 					//读取conn中的数据，这边的数据会到connection inputbuffer
+					//由于iovec len一直是1 所以这边readv 没办法 批量读取，发挥一次systemcall 获取多次可读数据的功效
 					var n, err = readv(operator.FD, bs, p.barriers[i].ivs)
 
 					operator.InputAck(n)

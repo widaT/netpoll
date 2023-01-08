@@ -596,6 +596,8 @@ func (b *LinkBuffer) book(bookSize, maxSize int) (p []byte) {
 // bookAck will ack the first n malloc bytes and discard the rest.
 //
 // length: The size of data in inputBuffer. It is used to calculate the maxSize
+// bookAck 将确认前 n 个 malloc 字节并丢弃其余字节。
+// length：inputBuffer 中数据的大小。 它用于计算 maxSize
 func (b *LinkBuffer) bookAck(n int) (length int, err error) {
 	b.write.malloc = n + len(b.write.buf)
 	b.write.buf = b.write.buf[:b.write.malloc]

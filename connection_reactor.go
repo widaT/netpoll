@@ -73,6 +73,7 @@ func (c *connection) closeBuffer() {
 }
 
 // inputs implements FDOperator.
+// 这边的返回值 永远len =1？
 func (c *connection) inputs(vs [][]byte) (rs [][]byte) {
 	vs[0] = c.inputBuffer.book(c.bookSize, c.maxSize)
 	return vs[:1]
@@ -86,6 +87,7 @@ func (c *connection) inputAck(n int) (err error) {
 	}
 
 	// Auto size bookSize.
+	// 扩容booksize，最大到8M
 	if n == c.bookSize && c.bookSize < mallocMax {
 		c.bookSize <<= 1
 	}

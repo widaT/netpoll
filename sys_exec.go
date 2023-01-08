@@ -87,7 +87,7 @@ func readv(fd int, bs [][]byte, ivs []syscall.Iovec) (n int, err error) {
 	}
 	// syscall
 	r, _, e := syscall.RawSyscall(syscall.SYS_READV, uintptr(fd), uintptr(unsafe.Pointer(&ivs[0])), uintptr(iovLen))
-	resetIovecs(bs, ivs[:iovLen])
+	resetIovecs(bs, ivs[:iovLen]) //重置的bs第一维 和ivs bs[0]原先指向的数据[]byte 为inputbuffer不受影响
 	if e != 0 {
 		return int(r), syscall.Errno(e)
 	}
