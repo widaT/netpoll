@@ -573,6 +573,12 @@ func (b *LinkBuffer) GetBytes(p [][]byte) (vs [][]byte) {
 // bookSize: The size of data that can be read at once.
 // maxSize: The maximum size of data between two Release(). In some cases, this can
 // 	guarantee all data allocated in one node to reduce copy.
+
+// book 会增长，malloc 缓冲区会保存数据。
+//
+// bookSize：一次可以读取的数据大小。
+// maxSize：两次 Release() 之间数据的最大长度。 在某些情况下，这可以
+// 保证所有数据分配在一个节点以减少副本。
 func (b *LinkBuffer) book(bookSize, maxSize int) (p []byte) {
 	l := cap(b.write.buf) - b.write.malloc
 	// grow linkBuffer

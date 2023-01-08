@@ -138,14 +138,16 @@ func (p *defaultPoll) handler(events []epollevent) (closed bool) {
 		evt := events[i].events
 		// check poll in
 		if evt&syscall.EPOLLIN != 0 {
-			if operator.OnRead != nil { //自定义处理 onread事件，没走zerocopy
+			if operator.OnRead != nil { //Listener fd 处理 onread事件
 				// for non-connection
 				operator.OnRead(p)
 			} else if operator.Inputs != nil {
 				// for connection
-				var bs = operator.Inputs(p.barriers[i].bs)
+				var bs = operator.Inputs(p.barriers[i].bs) //len(bs) = 1
 				if len(bs) > 0 {
-					var n, err = readv(operator.FD, bs, p.barriers[i].ivs) //读取conn中的数据
+
+					//读取conn中的数据，这边的数据会到connection inputbuffer
+					var n, err = readv(operator.FD, bs, p.barriers[i].ivs)
 
 					operator.InputAck(n)
 
