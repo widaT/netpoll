@@ -137,6 +137,7 @@ func (p *defaultPoll) handler(events []epollevent) (closed bool) {
 
 		evt := events[i].events
 		// check poll in
+		//输入事件
 		if evt&syscall.EPOLLIN != 0 {
 			if operator.OnRead != nil { //Listener fd 处理 onread事件
 				// for non-connection
@@ -164,10 +165,13 @@ func (p *defaultPoll) handler(events []epollevent) (closed bool) {
 		}
 
 		// check hup
+		//对端断开 一般会是 EPOLLIN | EPOLLRDHUP | EPOLLHUP 所以 上面的 Epollin  处理了一轮了
 		if evt&(syscall.EPOLLHUP|syscall.EPOLLRDHUP) != 0 {
 			p.appendHup(operator)
 			continue
 		}
+
+		//对应的文件描述符有error
 		if evt&syscall.EPOLLERR != 0 {
 			// Under block-zerocopy, the kernel may give an error callback, which is not a real error, just an EAGAIN.
 			// So here we need to check this error, if it is EAGAIN then do nothing, otherwise still mark as hup.
@@ -179,6 +183,7 @@ func (p *defaultPoll) handler(events []epollevent) (closed bool) {
 			continue
 		}
 		// check poll out
+		//输出事件
 		if evt&syscall.EPOLLOUT != 0 {
 			if operator.OnWrite != nil {
 				// for non-connection
